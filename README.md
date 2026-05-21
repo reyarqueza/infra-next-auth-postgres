@@ -1,0 +1,111 @@
+# infra-next-auth-postgres
+
+A **markdown-only skills library** for Cursor. Clone this repo, configure your agent harness, and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
+
+This repo contains **skills only** — no application code. Generated apps are created in a separate directory at runtime (default: `/Users/rey/dev/{APP_NAME}`).
+
+## Prerequisites — Agent harness (Cursor)
+
+Complete these **once** before your first bootstrap:
+
+| Prerequisite | What to configure | How to verify |
+| --- | --- | --- |
+| **GitHub (MCP)** | Enable Cursor **GitHub plugin**; sign in when prompted | Agent runs GitHub MCP `get_me` in preflight |
+| **Neon (MCP)** | Enable Cursor **Neon plugin**; sign in when prompted | Agent runs Neon MCP `list_projects` in preflight |
+| **Vercel (CLI)** | Install [Vercel CLI](https://vercel.com/docs/cli); run `vercel login` | `vercel whoami` succeeds |
+| **Vercel ↔ GitHub** | Install [Vercel for GitHub](https://vercel.com/docs/git/vercel-for-github) on your account/org | Required for git-linked Vercel projects (one-time) |
+
+> **Why CLI, not the Vercel plugin?** The Cursor Vercel MCP plugin is not supported in this workflow yet — it lacks project linking, Marketplace integrations (Neon), and env var management. Use the **Vercel CLI** for those steps instead.
+
+**Not in preflight:**
+
+- **GitHub OAuth App** (for app sign-in) — configured during bootstrap step `auth-env-setup`
+- **Vercel Marketplace terms** — may require browser acceptance on first `vercel integration add neon`
+
+## Bootstrap flow
+
+1. Clone this repo:
+
+   ```bash
+   git clone <skills-repo-url> && cd infra-next-auth-postgres
+   ```
+
+2. Open the folder in **Cursor**.
+
+3. Complete the agent harness setup above.
+
+4. In chat, say:
+
+   > **Bootstrap my app**
+
+   The agent asks for:
+
+   | Parameter | Default | Description |
+   | --- | --- | --- |
+   | `APP_NAME` | _(required)_ | GitHub repo name, Vercel project, package name |
+   | `GITHUB_OWNER` | _(required)_ | GitHub username or org |
+   | `VERCEL_TEAM` | _(required)_ | Vercel team slug (`vercel teams ls`) |
+   | `LOCAL_PATH` | `/Users/rey/dev/{APP_NAME}` | Where the app is scaffolded |
+   | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Vercel Marketplace Neon resource name |
+
+5. Confirm parameters. The agent runs sub-skills in order:
+
+   ```
+   preflight-auth → scaffold-app → github-create-push → vercel-git-link
+   → vercel-marketplace-neon → neon-ddl → auth-env-setup → verify-deploy
+   ```
+
+6. Work in the generated app at `LOCAL_PATH` (separate from this skills repo).
+
+## What bootstrap creates
+
+| Output | Location |
+| --- | --- |
+| Next.js app (Auth.js + Neon) | `LOCAL_PATH` |
+| GitHub repo | `github.com/{GITHUB_OWNER}/{APP_NAME}` |
+| Vercel project | Linked to GitHub; auto-deploy on push |
+| Neon database | Via Vercel Marketplace; env vars in Vercel |
+| Auth schema | Applied via Neon MCP (`sql-ddl/auth-schema.sql`) |
+
+## Skills layout
+
+```
+.cursor/skills/
+├── bootstrap/SKILL.md              # Master orchestrator — start here
+├── preflight-auth/SKILL.md
+├── scaffold-app/SKILL.md
+├── github-create-push/SKILL.md
+├── vercel-git-link/SKILL.md
+├── vercel-marketplace-neon/SKILL.md
+├── neon-ddl/SKILL.md
+├── auth-env-setup/SKILL.md
+└── verify-deploy/SKILL.md
+```
+
+## Tooling summary
+
+| Task | Tool |
+| --- | --- |
+| Create/push GitHub repo | Cursor **GitHub** plugin (MCP) |
+| Run auth DDL on Neon | Cursor **Neon** plugin (MCP) |
+| Vercel link, Marketplace Neon, env vars | **Vercel CLI** |
+
+## Known human pause points
+
+| When | Action |
+| --- | --- |
+| Preflight fails | Log in to GitHub/Neon plugins or run `vercel login` |
+| First Neon Marketplace install | Accept terms in browser (CLI waits) |
+| Neon provisioning | Wait 1–3 minutes for `POSTGRES_URL` |
+| Auth env setup | Create GitHub OAuth App; add callback URL |
+| OAuth callback | Update callback when custom domain is added |
+
+## Limits
+
+- Skills are **instructions for the agent**, not a guaranteed workflow engine
+- Execution quality depends on the agent following skills in order
+- Not fully hands-off — expect browser steps on first run per account
+
+## License
+
+MIT
