@@ -36,14 +36,14 @@ Stop on gate failure. Do not skip gates.
 | --- | --- | --- |
 | 1 | [preflight-auth](../preflight-auth/SKILL.md) | GitHub MCP, Neon MCP, Vercel CLI auth OK |
 | 2 | [scaffold-app](../scaffold-app/SKILL.md) | `npm run build` succeeds at `LOCAL_PATH` |
-
-**Step 2 note:** Before scaffolding, the agent must follow [scaffold-app](../scaffold-app/SKILL.md) **Next.js 16 prerequisites** (read Vercel `nextjs` / `routing-middleware` skills when installed, or use the inline fallback `proxy.ts` template).
 | 3 | [github-create-push](../github-create-push/SKILL.md) | Repo exists on GitHub |
 | 4 | [vercel-git-link](../vercel-git-link/SKILL.md) | `.vercel/project.json` exists |
 | 5 | [vercel-marketplace-neon](../vercel-marketplace-neon/SKILL.md) | `POSTGRES_URL` in Vercel env |
 | 6 | [neon-ddl](../neon-ddl/SKILL.md) | Auth tables exist |
 | 7 | [auth-env-setup](../auth-env-setup/SKILL.md) | All `.env.example` vars in Vercel |
 | 8 | [verify-deploy](../verify-deploy/SKILL.md) | Deployment ready, login page loads |
+
+**Step 2 note:** Before scaffolding, follow [scaffold-app](../scaffold-app/SKILL.md) **Next.js 16 prerequisites** (read Vercel `nextjs` / `routing-middleware` skills when installed, or use the inline fallback `proxy.ts` template). If those skills are unavailable, install Next.js skills first: `npx skills add vercel-labs/next-skills` ([skills.sh/topic/nextjs](https://www.skills.sh/topic/nextjs)).
 
 ## Completion report
 

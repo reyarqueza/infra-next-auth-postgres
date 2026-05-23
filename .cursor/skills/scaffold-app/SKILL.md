@@ -20,7 +20,7 @@ Before generating app code (especially `proxy.ts`), read the installed **Vercel*
 | `nextjs` | App Router file conventions; **middleware → proxy** rename |
 | `routing-middleware` | Proxy redirects, matcher patterns, auth at the network layer |
 
-If those skills are not installed, follow the **`proxy.ts` fallback template below exactly** for the generated app's lightweight redirect behavior. Do not use legacy `middleware.ts`.
+If those skills are not installed, run `npx skills add vercel-labs/next-skills` ([skills.sh/topic/nextjs](https://www.skills.sh/topic/nextjs)) or follow the **`proxy.ts` fallback template below exactly** for the generated app's lightweight redirect behavior. Do not use legacy `middleware.ts`.
 
 **Next.js 16 proxy rules (required):**
 
