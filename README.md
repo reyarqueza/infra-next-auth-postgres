@@ -55,7 +55,7 @@ Complete these **once** before your first bootstrap:
    → vercel-marketplace-neon → neon-ddl → auth-env-setup → verify-deploy
    ```
 
-   During `scaffold-app`, the agent reads Vercel `nextjs` / `routing-middleware` skills (when installed) and uses the canonical `proxy.ts` template.
+   During `scaffold-app`, the agent reads Vercel `nextjs` / `routing-middleware` skills (when installed) and uses either Auth.js' supported proxy export or the fallback `proxy.ts` template.
 
 6. Work in the generated app at `LOCAL_PATH` (separate from this skills repo).
 
@@ -91,7 +91,7 @@ Complete these **once** before your first bootstrap:
 | Create/push GitHub repo | Cursor **GitHub** plugin (MCP) |
 | Run auth DDL on Neon | Cursor **Neon** plugin (MCP) |
 | Vercel link, Marketplace Neon, env vars | **Vercel CLI** |
-| Next.js 16 scaffold (step 2) | Vercel plugin skills `nextjs` + `routing-middleware`, or inline template in `scaffold-app` |
+| Next.js 16 scaffold (step 2) | Vercel plugin skills `nextjs` + `routing-middleware`, Auth.js proxy export guidance, or inline fallback template in `scaffold-app` |
 
 ## Known human pause points
 
