@@ -43,7 +43,7 @@ Stop on gate failure. Do not skip gates.
 | 7 | [auth-env-setup](../auth-env-setup/SKILL.md) | All `.env.example` vars in Vercel |
 | 8 | [verify-deploy](../verify-deploy/SKILL.md) | Deployment ready, login page loads |
 
-**Step 2 note:** Before scaffolding, follow [scaffold-app](../scaffold-app/SKILL.md) **Next.js 16 prerequisites** (read Vercel `nextjs` / `routing-middleware` skills when installed, or use the inline fallback `proxy.ts` template). If those skills are unavailable, install Next.js skills first: `npx skills add vercel-labs/next-skills` ([skills.sh/topic/nextjs](https://www.skills.sh/topic/nextjs)).
+**Step 2 note:** Before scaffolding, follow [scaffold-app](../scaffold-app/SKILL.md) **Next.js 16 prerequisites** — verify `next-best-practices` is installed (auto-install with `npx skills add vercel-labs/next-skills --agent cursor --skill next-best-practices --skill next-cache-components --copy -y -g` if missing), read `next-best-practices` and `next-cache-components`, or use the inline fallback `proxy.ts` template. See [vercel-labs/next-skills](https://www.skills.sh/vercel-labs/next-skills).
 
 ## Completion report
 

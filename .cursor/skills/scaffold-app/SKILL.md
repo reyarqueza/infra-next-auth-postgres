@@ -13,14 +13,32 @@ Create the application at `LOCAL_PATH`. Use parameters from the bootstrap orches
 
 ## Next.js 16 prerequisites
 
-Before generating app code (especially `proxy.ts`), read the installed **Vercel** skills if available:
+Before generating app code, verify `next-best-practices` is installed. If missing, run:
+
+```bash
+npx skills add vercel-labs/next-skills \
+  --agent cursor \
+  --skill next-best-practices \
+  --skill next-cache-components \
+  --copy -y -g
+```
+
+([vercel-labs/next-skills](https://www.skills.sh/vercel-labs/next-skills))
+
+If install fails, follow the **`proxy.ts` fallback template below exactly** for the generated app's lightweight redirect behavior. Do not use legacy `middleware.ts`.
+
+**Read these skills before generating code:**
 
 | Skill | When to read |
 | --- | --- |
-| `nextjs` | App Router file conventions; **middleware → proxy** rename |
-| `routing-middleware` | Proxy redirects, matcher patterns, auth at the network layer |
+| `next-best-practices` | Always — file conventions, RSC boundaries, async APIs, `proxy.ts` |
+| `next-cache-components` | When writing `next.config.ts` or caching patterns |
 
-If those skills are not installed, run `npx skills add vercel-labs/next-skills` ([skills.sh/topic/nextjs](https://www.skills.sh/topic/nextjs)) or follow the **`proxy.ts` fallback template below exactly** for the generated app's lightweight redirect behavior. Do not use legacy `middleware.ts`.
+Pay special attention to:
+
+- `file-conventions.md` — `proxy.ts` not `middleware.ts`
+- `async-patterns.md` — async `cookies()` and `headers()` in Next.js 15+
+- `rsc-boundaries.md` — server vs client components
 
 **Next.js 16 proxy rules (required):**
 
@@ -47,6 +65,8 @@ npx create-next-app@latest "${LOCAL_PATH}" \
 If the directory must be created by create-next-app, use the directory name from `LOCAL_PATH`.
 
 Set `package.json` `"name"` to `APP_NAME`.
+
+Use TypeScript for `next.config.ts` (create-next-app default). Do not enable `cacheComponents: true` for this barebones auth starter — leave that for later if the user extends the app.
 
 ## Dependencies
 
