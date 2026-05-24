@@ -29,12 +29,12 @@ Complete these **once** before your first bootstrap:
 1. Clone this repo:
 
    ```bash
-   git clone <skills-repo-url> && cd infra-next-auth-postgres
+   git clone git@github.com:reyarqueza/infra-next-auth-postgres.git && cd infra-next-auth-postgres
    ```
 
 2. Open the folder in **Cursor**.
 
-3. Complete the prerequisites above.
+3. Complete the prerequisites above (GitHub MCP, Neon MCP, Vercel CLI, and Vercel ↔ GitHub).
 
 4. In chat, say:
 
