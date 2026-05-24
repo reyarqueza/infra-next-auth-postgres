@@ -21,12 +21,12 @@ Ask for any missing values:
 | `APP_NAME` | required | kebab-case recommended |
 | `GITHUB_OWNER` | required | GitHub username or org |
 | `VERCEL_TEAM` | required | Vercel team slug (`vercel teams ls`) |
-| `LOCAL_PATH` | `/Users/rey/dev/{APP_NAME}` | Must not be this skills repo path |
+| `LOCAL_PATH` | `../{APP_NAME}` | Alongside this skills repo; resolve `../{APP_NAME}` relative to repo root |
 | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Marketplace Neon resource name |
 
 Echo all resolved values and get user confirmation before step 1.
 
-**Safety:** Do not scaffold inside the skills repo directory (`infra-next-auth-postgres`). Generated apps live elsewhere.
+**Safety:** Do not scaffold inside the skills repo directory (`infra-next-auth-postgres`). By default, generated apps live alongside this repo at `../{APP_NAME}`.
 
 ## Sub-skills (execute in order)
 
