@@ -17,7 +17,7 @@ Do not run bootstrap steps unless the user explicitly requests it. This repo con
 | `APP_NAME` | _(ask)_ | GitHub repo name, Vercel project name, package name |
 | `GITHUB_OWNER` | _(ask)_ | GitHub user or org for `create_repository` |
 | `VERCEL_TEAM` | _(ask)_ | Vercel team slug for `--scope` |
-| `LOCAL_PATH` | `/Users/rey/dev/{APP_NAME}` | Where the scaffolded app is created |
+| `LOCAL_PATH` | `../{APP_NAME}` | Alongside this skills repo in the parent directory |
 | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Neon resource name for Marketplace |
 
 ## Tooling
