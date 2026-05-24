@@ -32,4 +32,14 @@ The Cursor Vercel MCP plugin is not used in this workflow.
 
 ## Next.js scaffolding (step 2)
 
-When running `scaffold-app`, the agent should also use installed **Vercel plugin skills** (`nextjs`, `routing-middleware`) for Next.js 16 conventions — especially `proxy.ts` (not `middleware.ts`). The scaffold skill includes a fallback template if those skills are unavailable. If missing, run `npx skills add vercel-labs/next-skills` before step 2 ([skills.sh/topic/nextjs](https://www.skills.sh/topic/nextjs)).
+When running `scaffold-app`, verify [vercel-labs/next-skills](https://www.skills.sh/vercel-labs/next-skills) is installed globally (`next-best-practices`, `next-cache-components`) and read them before generating code — especially `proxy.ts` (not `middleware.ts`), RSC boundaries, and async APIs. If missing, run:
+
+```bash
+npx skills add vercel-labs/next-skills \
+  --agent cursor \
+  --skill next-best-practices \
+  --skill next-cache-components \
+  --copy -y -g
+```
+
+The scaffold skill includes a fallback `proxy.ts` template if install fails.
