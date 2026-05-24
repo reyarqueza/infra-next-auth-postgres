@@ -1,10 +1,12 @@
 # infra-next-auth-postgres
 
-A **markdown-only skills library** for Cursor. Clone this repo, configure your agent harness, and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
+> **What this creates** - A barebones web app with GitHub sign-in and a dashboard for signed-in users only.
+>
+> **What this is** - A **markdown-only skills library** for Cursor. Clone this repo, complete the one-time setup (GitHub, Neon, Vercel), and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
+>
+> This repo contains **skills only** — no application code. Generated apps are created alongside this repo in the parent directory (default: `../{APP_NAME}`).
 
-This repo contains **skills only** — no application code. Generated apps are created in a separate directory at runtime (default: `/Users/rey/dev/{APP_NAME}`).
-
-## Prerequisites — Agent harness (Cursor)
+## Prerequisites
 
 Complete these **once** before your first bootstrap:
 
@@ -32,7 +34,7 @@ Complete these **once** before your first bootstrap:
 
 2. Open the folder in **Cursor**.
 
-3. Complete the agent harness setup above.
+3. Complete the prerequisites above.
 
 4. In chat, say:
 
@@ -45,7 +47,7 @@ Complete these **once** before your first bootstrap:
    | `APP_NAME` | _(required)_ | GitHub repo name, Vercel project, package name |
    | `GITHUB_OWNER` | _(required)_ | GitHub username or org |
    | `VERCEL_TEAM` | _(required)_ | Vercel team slug (`vercel teams ls`) |
-   | `LOCAL_PATH` | `/Users/rey/dev/{APP_NAME}` | Where the app is scaffolded |
+   | `LOCAL_PATH` | `../{APP_NAME}` | In the parent directory, alongside this repo |
    | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Vercel Marketplace Neon resource name |
 
 5. Confirm parameters. The agent runs sub-skills in order:
