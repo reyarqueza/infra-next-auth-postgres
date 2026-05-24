@@ -1,10 +1,10 @@
 # infra-next-auth-postgres
 
-A **markdown-only skills library** for Cursor. Clone this repo, configure your agent harness, and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
+A **markdown-only skills library** for Cursor. Clone this repo, complete the prerequisites below, and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
 
 This repo contains **skills only** — no application code. Generated apps are created in a separate directory at runtime (default: `/Users/rey/dev/{APP_NAME}`).
 
-## Prerequisites — Agent harness (Cursor)
+## Prerequisites
 
 Complete these **once** before your first bootstrap:
 
@@ -27,12 +27,12 @@ Complete these **once** before your first bootstrap:
 1. Clone this repo:
 
    ```bash
-   git clone <skills-repo-url> && cd infra-next-auth-postgres
+   git clone git@github.com:reyarqueza/infra-next-auth-postgres.git && cd infra-next-auth-postgres
    ```
 
 2. Open the folder in **Cursor**.
 
-3. Complete the agent harness setup above.
+3. Complete the prerequisites above (GitHub MCP, Neon MCP, Vercel CLI, and Vercel ↔ GitHub).
 
 4. In chat, say:
 
