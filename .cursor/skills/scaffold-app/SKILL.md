@@ -66,7 +66,19 @@ If the directory must be created by create-next-app, use the directory name from
 
 Set `package.json` `"name"` to `APP_NAME`.
 
-Use TypeScript for `next.config.ts` (create-next-app default). Do not enable `cacheComponents: true` for this barebones auth starter — leave that for later if the user extends the app.
+Enable Partial Prerendering (PPR) in `next.config.ts`:
+
+```ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  cacheComponents: true,
+};
+
+export default nextConfig;
+```
+
+Apply `next-cache-components` patterns in generated routes: keep static shells prerendered; wrap session-dependent UI (e.g. dashboard welcome card after `auth()`) in `<Suspense>` since session data is dynamic at request time.
 
 ## Dependencies
 
