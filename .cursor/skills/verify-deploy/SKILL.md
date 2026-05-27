@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 Confirm the bootstrapped app is deployed and reachable.
 
-Parameters: `APP_NAME`, `VERCEL_TEAM`, `LOCAL_PATH`, `GITHUB_OWNER`.
+Parameters: `APP_NAME`, `VERCEL_PROJECT_NAME`, `PRODUCTION_URL`, `VERCEL_TEAM`, `LOCAL_PATH`, `GITHUB_OWNER`.
 
 ## Trigger deployment
 
@@ -26,7 +26,7 @@ Or push an empty commit to trigger GitHub → Vercel auto-deploy.
 ## Wait for deployment
 
 ```bash
-vercel list "${APP_NAME}" --scope "${VERCEL_TEAM}"
+vercel list "${VERCEL_PROJECT_NAME}" --scope "${VERCEL_TEAM}"
 ```
 
 Poll until status is `READY` (up to 10 minutes).
@@ -37,12 +37,14 @@ Poll until status is `READY` (up to 10 minutes).
 vercel inspect --scope "${VERCEL_TEAM}" <deployment-url-or-id>
 ```
 
-Or read from Vercel dashboard / project settings.
+Or read from Vercel dashboard / project settings. Prefer the deployment alias as source of truth if it differs from `PRODUCTION_URL`.
 
 ## Smoke checks
 
-1. **Login page:** fetch production `/login` — expect 200 and sign-in UI (GitHub sign-in button present)
-2. **Dashboard redirect:** fetch `/dashboard` unauthenticated — expect redirect to `/login`
+Use `{PRODUCTION_URL}` (or the deployment alias if different):
+
+1. **Login page:** fetch `{PRODUCTION_URL}/login` — expect 200 and sign-in UI (GitHub sign-in button present)
+2. **Dashboard redirect:** fetch `{PRODUCTION_URL}/dashboard` unauthenticated — expect redirect to `/login`
 3. **Neon (optional):** Neon MCP `run_sql` with `SELECT 1` on the provisioned project
 
 OAuth credentials are supplied at bootstrap start; do not accept partial success for missing OAuth env vars.
@@ -66,8 +68,8 @@ Then provide:
 | Item | Value |
 | --- | --- |
 | GitHub | `https://github.com/{GITHUB_OWNER}/{APP_NAME}` |
-| Vercel project | link from `vercel project inspect {APP_NAME}` |
-| Production URL | deployment URL |
+| Vercel project | link from `vercel project inspect {VERCEL_PROJECT_NAME}` |
+| Production URL | `{PRODUCTION_URL}` (or deployment alias) |
 | Local path | `LOCAL_PATH` |
 | Local dev | `cd LOCAL_PATH && npm run dev` |
 

@@ -29,14 +29,14 @@ Complete these **once** before your first bootstrap:
 
 > **Why CLI, not the Vercel plugin?** The Cursor Vercel MCP plugin is not supported in this workflow yet — it lacks project linking, Marketplace integrations (Neon), and env var management. Use the **Vercel CLI** for those steps instead.
 
-**GitHub OAuth App (preflight — before bootstrap):**
+**GitHub OAuth App (preflight — after the agent resolves `PRODUCTION_URL`):**
 
 1. GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
-2. **Homepage URL:** `https://{APP_NAME}.vercel.app`
-3. **Callback URL:** `https://{APP_NAME}.vercel.app/api/auth/callback/github` (optional: `http://localhost:3000/api/auth/callback/github` for local dev)
+2. **Homepage URL:** `{PRODUCTION_URL}` (e.g. `https://test-3-rey-arquezas-projects.vercel.app` — **not** `https://{APP_NAME}.vercel.app`)
+3. **Callback URL:** `{PRODUCTION_URL}/api/auth/callback/github` (optional: `http://localhost:3000/api/auth/callback/github` for local dev)
 4. Copy **Client ID** and **Client Secret** — provide as `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` when the agent collects bootstrap parameters
 
-The OAuth App itself is created during preflight; the agent only writes credentials to Vercel during bootstrap (no mid-run browser step).
+Team production URLs follow `{project-name}-{scope-slug}.vercel.app` ([Vercel generated URLs](https://vercel.com/docs/deployments/generated-urls)). The agent resolves `PRODUCTION_URL` before asking for OAuth credentials.
 
 ## Bootstrap flow
 
@@ -58,13 +58,17 @@ The OAuth App itself is created during preflight; the agent only writes credenti
 
    | Parameter | Default | Description |
    | --- | --- | --- |
-   | `APP_NAME` | _(required)_ | GitHub repo name, Vercel project, package name |
+   | `APP_NAME` | _(required)_ | GitHub repo name and package name |
    | `GITHUB_OWNER` | _(required)_ | GitHub username or org |
    | `VERCEL_TEAM` | _(required)_ | Vercel team slug (`vercel teams ls`) |
    | `LOCAL_PATH` | `../{APP_NAME}` | In the parent directory, alongside this repo |
    | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Vercel Marketplace Neon resource name |
-   | `AUTH_GITHUB_ID` | _(required)_ | GitHub OAuth App Client ID (from preflight) |
+   | `VERCEL_PROJECT_NAME` | `{APP_NAME}` | Vercel project name; auto-suffixed if name exists in team |
+   | `PRODUCTION_URL` | derived | `https://{VERCEL_PROJECT_NAME}-{VERCEL_TEAM}.vercel.app` |
+   | `AUTH_GITHUB_ID` | _(required)_ | GitHub OAuth App Client ID (use `PRODUCTION_URL` in OAuth App) |
    | `AUTH_GITHUB_SECRET` | _(required)_ | GitHub OAuth App Client Secret (from preflight) |
+
+   The agent resolves `VERCEL_PROJECT_NAME` and `PRODUCTION_URL` before collecting OAuth credentials. If a Vercel project named `APP_NAME` already exists in your team, the agent auto-suffixes the Vercel project only (e.g. `test-3-a7f2c1`); the GitHub repo stays `{GITHUB_OWNER}/{APP_NAME}`.
 
 5. Confirm parameters. The agent runs sub-skills in order (unattended after confirmation if preflight is complete):
 
@@ -85,10 +89,11 @@ The OAuth App itself is created during preflight; the agent only writes credenti
 | --- | --- |
 | Next.js app (Auth.js + Neon + shadcn/ui) | `LOCAL_PATH` |
 | GitHub repo | `github.com/{GITHUB_OWNER}/{APP_NAME}` |
-| Vercel project | Linked to GitHub; production deploy on push |
+| Vercel project | `{VERCEL_PROJECT_NAME}` linked to GitHub; production deploy on push |
+| Production URL | `{PRODUCTION_URL}` (e.g. `https://{VERCEL_PROJECT_NAME}-{VERCEL_TEAM}.vercel.app`) |
 | Neon database | Vercel Marketplace; `POSTGRES_URL` in Vercel env |
 | Auth schema | Applied via Neon MCP (`sql-ddl/auth-schema.sql`) |
-| GitHub OAuth App | Sign-in for the app; callback URL points at Vercel production |
+| GitHub OAuth App | Sign-in for the app; callback URL points at `PRODUCTION_URL` |
 | Auth & DB secrets | From `.env.example` synced to Vercel (never echoed in chat) |
 | Production deployment | Verified — deployment `READY`, login page reachable |
 
@@ -120,7 +125,7 @@ The OAuth App itself is created during preflight; the agent only writes credenti
 
 | When | Action |
 | --- | --- |
-| Preflight (once) | Create GitHub OAuth App; have Client ID + Secret ready for bootstrap |
+| Preflight (once) | Create GitHub OAuth App using agent-resolved `PRODUCTION_URL`; have Client ID + Secret ready |
 | Preflight (once per account) | Accept Vercel Neon Marketplace terms |
 | Preflight fails | Log in to GitHub/Neon plugins or run `vercel login` |
 | Neon provisioning | Agent polls 1–3 minutes for `POSTGRES_URL` — no human action |

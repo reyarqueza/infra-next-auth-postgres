@@ -14,13 +14,17 @@ Do not run bootstrap steps unless the user explicitly requests it. This repo con
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `APP_NAME` | _(ask)_ | GitHub repo name, Vercel project name, package name |
+| `APP_NAME` | _(ask)_ | GitHub repo name and package name |
 | `GITHUB_OWNER` | _(ask)_ | GitHub user or org for `create_repository` |
 | `VERCEL_TEAM` | _(ask)_ | Vercel team slug for `--scope` |
 | `LOCAL_PATH` | `../{APP_NAME}` | Alongside this skills repo in the parent directory |
 | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Neon resource name for Marketplace |
-| `AUTH_GITHUB_ID` | _(ask)_ | GitHub OAuth App Client ID (from preflight) |
+| `VERCEL_PROJECT_NAME` | `{APP_NAME}` | Vercel project name; auto-suffixed if name exists in team |
+| `PRODUCTION_URL` | derived | `https://{VERCEL_PROJECT_NAME}-{VERCEL_TEAM}.vercel.app` — use for OAuth App and `AUTH_URL` |
+| `AUTH_GITHUB_ID` | _(ask)_ | GitHub OAuth App Client ID (from preflight; OAuth App must use `PRODUCTION_URL`) |
 | `AUTH_GITHUB_SECRET` | _(ask)_ | GitHub OAuth App Client Secret (from preflight; never echo) |
+
+Resolve `VERCEL_PROJECT_NAME` and `PRODUCTION_URL` before collecting OAuth credentials. See [bootstrap/SKILL.md](.cursor/skills/bootstrap/SKILL.md) name-resolution step.
 
 ## Tooling
 

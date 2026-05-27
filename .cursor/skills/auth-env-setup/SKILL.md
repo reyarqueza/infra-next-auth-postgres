@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 Configure remaining environment variables for Auth.js GitHub sign-in.
 
-Parameters: `APP_NAME`, `VERCEL_TEAM`, `LOCAL_PATH`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
+Parameters: `PRODUCTION_URL`, `VERCEL_TEAM`, `LOCAL_PATH`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
 
 Read required vars from `LOCAL_PATH/.env.example`.
 
@@ -26,13 +26,13 @@ unset AUTH_SECRET
 
 ## AUTH_URL
 
-After first deployment URL is known (or use `https://${APP_NAME}.vercel.app` as initial value):
+Set to `PRODUCTION_URL` (resolved during bootstrap — e.g. `https://{VERCEL_PROJECT_NAME}-{VERCEL_TEAM}.vercel.app`):
 
 ```bash
-vercel env add AUTH_URL production preview development --scope "${VERCEL_TEAM}"
+printf "%s" "${PRODUCTION_URL}" | vercel env add AUTH_URL production preview development --scope "${VERCEL_TEAM}"
 ```
 
-Use production URL for production env; preview can use Vercel preview URL pattern if needed.
+After first prod deploy, optionally re-read the actual alias from `vercel inspect <deployment> --json` and update `AUTH_URL` if it differs from `PRODUCTION_URL` (truncation edge cases).
 
 ## GitHub OAuth credentials
 
