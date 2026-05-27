@@ -23,10 +23,26 @@ Ask for any missing values:
 | `VERCEL_TEAM` | required | Vercel team slug (`vercel teams ls`) |
 | `LOCAL_PATH` | `../{APP_NAME}` | Alongside this skills repo; resolve `../{APP_NAME}` relative to repo root |
 | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Marketplace Neon resource name |
+| `AUTH_GITHUB_ID` | required | GitHub OAuth App Client ID (created during preflight) |
+| `AUTH_GITHUB_SECRET` | required | GitHub OAuth App Client Secret; never echo in chat |
 
-Echo all resolved values and get user confirmation before step 1.
+Echo all resolved values and get user confirmation before step 1. Show `AUTH_GITHUB_ID`; mask or omit `AUTH_GITHUB_SECRET`.
 
 **Safety:** Do not scaffold inside the skills repo directory (`infra-next-auth-postgres`). By default, generated apps live alongside this repo at `../{APP_NAME}`.
+
+## Start timer
+
+After the user confirms parameters and **before** step 1, record bootstrap start time:
+
+```bash
+date -u +%Y-%m-%dT%H:%M:%SZ > "/tmp/bootstrap-${APP_NAME}-started-at"
+```
+
+After `scaffold-app` creates `LOCAL_PATH`, copy the timestamp into the app directory (do not commit it):
+
+```bash
+cp "/tmp/bootstrap-${APP_NAME}-started-at" "${LOCAL_PATH}/.bootstrap-started-at"
+```
 
 ## Sub-skills (execute in order)
 
@@ -47,12 +63,27 @@ Stop on gate failure. Do not skip gates.
 
 ## Completion report
 
-After step 8, summarize for the user:
+After step 8 gate passes, compute elapsed minutes from the start timestamp:
+
+```bash
+START=$(cat "${LOCAL_PATH}/.bootstrap-started-at" 2>/dev/null || cat "/tmp/bootstrap-${APP_NAME}-started-at")
+END=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+# Round up to whole minutes; minimum 1 if elapsed > 0 seconds
+```
+
+Lead with:
+
+> **Bootstrap complete** — `{APP_NAME}` is deployed to production. **Completed in X minutes** (infra-next-auth-postgres).
+
+Then summarize:
 
 - GitHub repo URL
 - Vercel project URL
 - Production URL
 - Local path (`LOCAL_PATH`)
-- Remaining manual steps (if any)
+- Local dev: `cd LOCAL_PATH && npm run dev`
+- Remaining manual steps (if any — e.g. OAuth callback URL after custom domain)
+
+Delete `${LOCAL_PATH}/.bootstrap-started-at` and `/tmp/bootstrap-${APP_NAME}-started-at` after reporting.
 
 Never echo secret values in the summary.

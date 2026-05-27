@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 Configure remaining environment variables for Auth.js GitHub sign-in.
 
-Parameters: `APP_NAME`, `VERCEL_TEAM`, `LOCAL_PATH`.
+Parameters: `APP_NAME`, `VERCEL_TEAM`, `LOCAL_PATH`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
 
 Read required vars from `LOCAL_PATH/.env.example`.
 
@@ -34,23 +34,17 @@ vercel env add AUTH_URL production preview development --scope "${VERCEL_TEAM}"
 
 Use production URL for production env; preview can use Vercel preview URL pattern if needed.
 
-## GitHub OAuth App (user action)
+## GitHub OAuth credentials
 
-Guide the user to create a **GitHub OAuth App** (not the same as GitHub MCP plugin):
-
-1. GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
-2. **Authorization callback URL:** `https://<vercel-domain>/api/auth/callback/github`
-   - Local dev: `http://localhost:3000/api/auth/callback/github`
-3. Copy Client ID and Client Secret
+Use `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` from bootstrap parameters (created during preflight — see [preflight-auth](../preflight-auth/SKILL.md)). Do not pause for manual OAuth App creation.
 
 Add to Vercel (do not echo secrets in chat):
 
 ```bash
-vercel env add AUTH_GITHUB_ID production preview development --scope "${VERCEL_TEAM}"
-vercel env add AUTH_GITHUB_SECRET production preview development --scope "${VERCEL_TEAM}"
+printf "%s" "${AUTH_GITHUB_ID}" | vercel env add AUTH_GITHUB_ID production preview development --scope "${VERCEL_TEAM}"
+printf "%s" "${AUTH_GITHUB_SECRET}" | vercel env add AUTH_GITHUB_SECRET production preview development --scope "${VERCEL_TEAM}"
+unset AUTH_GITHUB_SECRET
 ```
-
-For local dev, user may use separate OAuth app or same app with localhost callback.
 
 ## Refresh local env
 
@@ -67,4 +61,4 @@ vercel env ls --scope "${VERCEL_TEAM}"
 
 Must include: `DATABASE_URL` (or `POSTGRES_URL` + mapped `DATABASE_URL`), `AUTH_SECRET`, `AUTH_URL`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
 
-Pause until user completes OAuth app setup if credentials are missing.
+If OAuth credentials are missing from bootstrap parameters, stop and instruct the user to complete preflight OAuth App setup — do not guide mid-run browser creation.
