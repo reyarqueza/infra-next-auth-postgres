@@ -18,17 +18,41 @@ Ask for any missing values:
 
 | Variable | Default | Notes |
 | --- | --- | --- |
-| `APP_NAME` | required | kebab-case recommended |
+| `APP_NAME` | required | kebab-case recommended; GitHub repo name and package name |
 | `GITHUB_OWNER` | required | GitHub username or org |
 | `VERCEL_TEAM` | required | Vercel team slug (`vercel teams ls`) |
 | `LOCAL_PATH` | `../{APP_NAME}` | Alongside this skills repo; resolve `../{APP_NAME}` relative to repo root |
 | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Marketplace Neon resource name |
+| `VERCEL_PROJECT_NAME` | `{APP_NAME}` | Resolved in name-resolution step below; may be auto-suffixed |
+| `PRODUCTION_URL` | derived | `https://{VERCEL_PROJECT_NAME}-{VERCEL_TEAM}.vercel.app` |
 | `AUTH_GITHUB_ID` | required | GitHub OAuth App Client ID (created during preflight) |
 | `AUTH_GITHUB_SECRET` | required | GitHub OAuth App Client Secret; never echo in chat |
 
-Echo all resolved values and get user confirmation before step 1. Show `AUTH_GITHUB_ID`; mask or omit `AUTH_GITHUB_SECRET`.
-
 **Safety:** Do not scaffold inside the skills repo directory (`infra-next-auth-postgres`). By default, generated apps live alongside this repo at `../{APP_NAME}`.
+
+## Resolve Vercel project name
+
+After `APP_NAME` and `VERCEL_TEAM` are known, resolve a unique Vercel project name **within the team** before collecting OAuth credentials:
+
+```bash
+VERCEL_PROJECT_NAME="${APP_NAME}"
+if vercel project inspect "${VERCEL_PROJECT_NAME}" --scope "${VERCEL_TEAM}" >/dev/null 2>&1; then
+  VERCEL_PROJECT_NAME="${APP_NAME}-$(node -e "console.log(require('crypto').randomBytes(3).toString('hex'))")"
+fi
+PRODUCTION_URL="https://${VERCEL_PROJECT_NAME}-${VERCEL_TEAM}.vercel.app"
+```
+
+- If the suffixed name also exists, retry up to 3 times with a new random suffix
+- GitHub repo stays `{GITHUB_OWNER}/{APP_NAME}` — only the Vercel project name is suffixed on conflict
+- **Gate:** do not collect `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET` until `PRODUCTION_URL` is finalized
+
+Echo all resolved values and get user confirmation before step 1. Show:
+
+- `APP_NAME`, `VERCEL_PROJECT_NAME`, `PRODUCTION_URL`, `GITHUB_OWNER`, `VERCEL_TEAM`, `LOCAL_PATH`, `DB_RESOURCE_NAME`
+- GitHub repo: `https://github.com/{GITHUB_OWNER}/{APP_NAME}`
+- `AUTH_GITHUB_ID`; mask or omit `AUTH_GITHUB_SECRET`
+
+Note for the user: **Use `PRODUCTION_URL` for the GitHub OAuth App — not `{APP_NAME}.vercel.app`.** Team production URLs follow `{project-name}-{scope-slug}.vercel.app` ([Vercel generated URLs](https://vercel.com/docs/deployments/generated-urls)).
 
 ## Start timer
 
@@ -77,12 +101,14 @@ Lead with:
 
 Then summarize:
 
-- GitHub repo URL
-- Vercel project URL
-- Production URL
+- GitHub repo URL (`{GITHUB_OWNER}/{APP_NAME}`)
+- Vercel project name (`VERCEL_PROJECT_NAME`) and project URL
+- Production URL (`PRODUCTION_URL`)
 - Local path (`LOCAL_PATH`)
 - Local dev: `cd LOCAL_PATH && npm run dev`
 - Remaining manual steps (if any — e.g. OAuth callback URL after custom domain)
+
+Optional hardening: after first prod deploy, re-read the actual alias from `vercel inspect <deployment> --json` and use it as source of truth if it differs from `PRODUCTION_URL` (handles truncation edge cases).
 
 Delete `${LOCAL_PATH}/.bootstrap-started-at` and `/tmp/bootstrap-${APP_NAME}-started-at` after reporting.
 

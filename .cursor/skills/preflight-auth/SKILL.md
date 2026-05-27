@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 Verify tooling before any scaffold or infra steps.
 
-Parameters: `APP_NAME`, `GITHUB_OWNER`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` (when validating OAuth creds).
+Parameters: `APP_NAME`, `GITHUB_OWNER`, `PRODUCTION_URL`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` (when validating OAuth creds).
 
 ## Checks
 
@@ -48,11 +48,11 @@ Remind user that [Vercel for GitHub](https://vercel.com/docs/git/vercel-for-gith
 The human must create a **GitHub OAuth App** for app sign-in (not the same as GitHub MCP plugin) **before** starting bootstrap:
 
 1. GitHub → Settings → Developer settings → OAuth Apps → New OAuth App (or reuse an org-level app)
-2. **Homepage URL:** `https://{APP_NAME}.vercel.app`
-3. **Authorization callback URL:** `https://{APP_NAME}.vercel.app/api/auth/callback/github`
+2. **Homepage URL:** `{PRODUCTION_URL}` (resolved by bootstrap — e.g. `https://test-3-rey-arquezas-projects.vercel.app`, **not** `https://{APP_NAME}.vercel.app`)
+3. **Authorization callback URL:** `{PRODUCTION_URL}/api/auth/callback/github`
    - Optional for local dev: `http://localhost:3000/api/auth/callback/github`
 4. Copy **Client ID** and generate **Client Secret**
-5. Provide both as `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` when the agent collects bootstrap parameters
+5. Provide both as `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` when the agent collects bootstrap parameters (after `PRODUCTION_URL` is finalized)
 
 **Optional validation** (if creds are already supplied):
 

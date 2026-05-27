@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 Create a Vercel project connected to the GitHub repo and link the local app.
 
-Parameters: `APP_NAME`, `GITHUB_OWNER`, `VERCEL_TEAM`, `LOCAL_PATH`.
+Parameters: `APP_NAME`, `VERCEL_PROJECT_NAME`, `GITHUB_OWNER`, `VERCEL_TEAM`, `LOCAL_PATH`.
 
 Requires [Vercel for GitHub](https://vercel.com/docs/git/vercel-for-github) installed on `{GITHUB_OWNER}`.
 
@@ -18,11 +18,13 @@ Requires [Vercel for GitHub](https://vercel.com/docs/git/vercel-for-github) inst
 
 ```bash
 vercel api /v11/projects -X POST \
-  -F "name=${APP_NAME}" \
+  -F "name=${VERCEL_PROJECT_NAME}" \
   -F "gitRepository[type]=github" \
   -F "gitRepository[repo]=${GITHUB_OWNER}/${APP_NAME}" \
   --scope "${VERCEL_TEAM}"
 ```
+
+Use `VERCEL_PROJECT_NAME` for the Vercel project (may differ from `APP_NAME` if auto-suffixed). Git repo remains `{GITHUB_OWNER}/{APP_NAME}`.
 
 If the API returns an error about git access, stop and instruct user to install/configure the Vercel GitHub App.
 
@@ -30,7 +32,7 @@ If the API returns an error about git access, stop and instruct user to install/
 
 ```bash
 cd "${LOCAL_PATH}"
-vercel link --yes --scope "${VERCEL_TEAM}" --project "${APP_NAME}"
+vercel link --yes --scope "${VERCEL_TEAM}" --project "${VERCEL_PROJECT_NAME}"
 ```
 
 This creates `.vercel/project.json`.
