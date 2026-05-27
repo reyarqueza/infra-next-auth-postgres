@@ -19,6 +19,8 @@ Do not run bootstrap steps unless the user explicitly requests it. This repo con
 | `VERCEL_TEAM` | _(ask)_ | Vercel team slug for `--scope` |
 | `LOCAL_PATH` | `../{APP_NAME}` | Alongside this skills repo in the parent directory |
 | `DB_RESOURCE_NAME` | `{APP_NAME}-db` | Neon resource name for Marketplace |
+| `AUTH_GITHUB_ID` | _(ask)_ | GitHub OAuth App Client ID (from preflight) |
+| `AUTH_GITHUB_SECRET` | _(ask)_ | GitHub OAuth App Client Secret (from preflight; never echo) |
 
 ## Tooling
 

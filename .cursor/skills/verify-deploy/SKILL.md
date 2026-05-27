@@ -41,15 +41,27 @@ Or read from Vercel dashboard / project settings.
 
 ## Smoke checks
 
-1. **Login page:** fetch production `/login` — expect 200 and sign-in UI
+1. **Login page:** fetch production `/login` — expect 200 and sign-in UI (GitHub sign-in button present)
 2. **Dashboard redirect:** fetch `/dashboard` unauthenticated — expect redirect to `/login`
 3. **Neon (optional):** Neon MCP `run_sql` with `SELECT 1` on the provisioned project
 
-Sign-in flow requires GitHub OAuth vars — if OAuth not configured yet, login page loading is sufficient for this gate.
+OAuth credentials are supplied at bootstrap start; do not accept partial success for missing OAuth env vars.
 
 ## Completion report
 
-Provide the user:
+Compute elapsed minutes (same logic as [bootstrap](../bootstrap/SKILL.md) completion report):
+
+```bash
+START=$(cat "${LOCAL_PATH}/.bootstrap-started-at" 2>/dev/null || cat "/tmp/bootstrap-${APP_NAME}-started-at")
+END=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+# Round up to whole minutes; minimum 1 if elapsed > 0 seconds
+```
+
+Lead with:
+
+> **Bootstrap complete** — `{APP_NAME}` is deployed to production. **Completed in X minutes** (infra-next-auth-postgres).
+
+Then provide:
 
 | Item | Value |
 | --- | --- |
@@ -63,4 +75,4 @@ List any remaining manual steps (OAuth callback URL update after custom domain, 
 
 ## Gate
 
-Production `/login` returns successfully. Report partial success if OAuth not yet configured but deployment is green.
+Production `/login` returns 200 with sign-in UI. All smoke checks must pass — bootstrap is not complete until login page is verified with OAuth configured in Vercel.

@@ -165,6 +165,8 @@ AUTH_GITHUB_ID=
 AUTH_GITHUB_SECRET=
 ```
 
+Add `.bootstrap-started-at` to `.gitignore` (bootstrap timer file; not committed).
+
 ## Gate
 
 From `LOCAL_PATH`:
