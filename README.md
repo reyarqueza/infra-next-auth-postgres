@@ -1,8 +1,16 @@
 # infra-next-auth-postgres
 
-> **What this creates** - A barebones web app with GitHub sign-in and a dashboard for signed-in users only.
+> **What this creates** — End to end: a production-deployed app **and** the infrastructure behind it.
 >
-> **What this is** - A **markdown-only skills library** for Cursor. Clone this repo, complete the one-time setup (GitHub, Neon, Vercel), and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
+> - **Application** — Next.js 16 app with Auth.js (GitHub sign-in), Neon Postgres adapter, shadcn/ui, a login page, and an empty dashboard page (for you to customize) for signed-in users only.
+> - **GitHub** — New repository under your owner/org with the scaffolded code pushed.
+> - **Vercel** — Project linked to that repo; production deploy on push (or explicit `vercel deploy --prod`).
+> - **Neon** — Postgres database via the Vercel Marketplace integration; `POSTGRES_URL` and related env vars in Vercel.
+> - **Database schema** — Auth.js tables applied on Neon (`sql-ddl/auth-schema.sql`).
+> - **OAuth & secrets** — GitHub OAuth App for sign-in; `AUTH_SECRET`, callback URLs, and other vars from `.env.example` set in Vercel.
+> - **Verification** — Agent confirms the production deployment is ready and the login page loads.
+>
+> **What this is** — A **markdown-only skills library** for Cursor. Clone this repo, complete the one-time setup (GitHub, Neon, Vercel), and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
 >
 > This repo contains **skills only** — no application code. Generated apps are created alongside this repo in the parent directory (default: `../{APP_NAME}`).
 
@@ -63,13 +71,16 @@ Complete these **once** before your first bootstrap:
 
 ## What bootstrap creates
 
-| Output | Location |
+| Output | Location / notes |
 | --- | --- |
-| Next.js app (Auth.js + Neon) | `LOCAL_PATH` |
+| Next.js app (Auth.js + Neon + shadcn/ui) | `LOCAL_PATH` |
 | GitHub repo | `github.com/{GITHUB_OWNER}/{APP_NAME}` |
-| Vercel project | Linked to GitHub; auto-deploy on push |
-| Neon database | Via Vercel Marketplace; env vars in Vercel |
+| Vercel project | Linked to GitHub; production deploy on push |
+| Neon database | Vercel Marketplace; `POSTGRES_URL` in Vercel env |
 | Auth schema | Applied via Neon MCP (`sql-ddl/auth-schema.sql`) |
+| GitHub OAuth App | Sign-in for the app; callback URL points at Vercel production |
+| Auth & DB secrets | From `.env.example` synced to Vercel (never echoed in chat) |
+| Production deployment | Verified — deployment `READY`, login page reachable |
 
 ## Skills layout
 
