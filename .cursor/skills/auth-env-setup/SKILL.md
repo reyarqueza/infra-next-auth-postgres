@@ -14,43 +14,44 @@ Parameters: `PRODUCTION_URL`, `VERCEL_TEAM`, `LOCAL_PATH`, `AUTH_GITHUB_ID`, `AU
 
 Read required vars from `LOCAL_PATH/.env.example`.
 
-## AUTH_SECRET
+## Vercel CLI notes
 
-Generate without printing:
+Use **production** target only for bootstrap (preview/development are optional and require extra flags for branch scope).
+
+Always append `</dev/null` to each `vercel env add` — without it the CLI may hang waiting for stdin in non-TTY sessions.
+
+Run all four adds in one shell block; do not loop over preview/development unless the user explicitly requests them.
+
+## Add auth env vars (production)
+
+From `LOCAL_PATH`:
 
 ```bash
+cd "${LOCAL_PATH}"
+
 AUTH_SECRET="$(node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))")"
-printf "%s" "$AUTH_SECRET" | vercel env add AUTH_SECRET production preview development --scope "${VERCEL_TEAM}"
-unset AUTH_SECRET
+
+vercel env add AUTH_SECRET production --value "$AUTH_SECRET" --yes --force --scope "${VERCEL_TEAM}" --non-interactive </dev/null
+vercel env add AUTH_URL production --value "${PRODUCTION_URL}" --yes --force --scope "${VERCEL_TEAM}" --non-interactive </dev/null
+vercel env add AUTH_GITHUB_ID production --value "${AUTH_GITHUB_ID}" --yes --force --scope "${VERCEL_TEAM}" --non-interactive </dev/null
+vercel env add AUTH_GITHUB_SECRET production --value "${AUTH_GITHUB_SECRET}" --yes --force --scope "${VERCEL_TEAM}" --non-interactive </dev/null
+
+unset AUTH_SECRET AUTH_GITHUB_SECRET
 ```
 
-## AUTH_URL
+Do not echo secrets in chat.
 
-Set to `PRODUCTION_URL` (resolved during bootstrap — e.g. `https://{APP_NAME}.{DOMAIN_NAME}`):
-
-```bash
-printf "%s" "${PRODUCTION_URL}" | vercel env add AUTH_URL production preview development --scope "${VERCEL_TEAM}"
-```
-
-Requires [vercel-custom-domain](../vercel-custom-domain/SKILL.md) to have completed before this step.
+Requires [vercel-custom-domain](../vercel-custom-domain/SKILL.md) to have completed before this step (DNS record exists; HTTP verification happens in [verify-deploy](../verify-deploy/SKILL.md)).
 
 ## GitHub OAuth credentials
 
-Collect `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` from the user if not already provided (see [bootstrap](../bootstrap/SKILL.md) — after step 7, before this step). Do not proceed without them.
-
-Add to Vercel (do not echo secrets in chat):
-
-```bash
-printf "%s" "${AUTH_GITHUB_ID}" | vercel env add AUTH_GITHUB_ID production preview development --scope "${VERCEL_TEAM}"
-printf "%s" "${AUTH_GITHUB_SECRET}" | vercel env add AUTH_GITHUB_SECRET production preview development --scope "${VERCEL_TEAM}"
-unset AUTH_GITHUB_SECRET
-```
+Collect `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` from the user if not already provided (see [bootstrap](../bootstrap/SKILL.md)). Do not proceed without them.
 
 ## Refresh local env
 
 ```bash
 cd "${LOCAL_PATH}"
-vercel env pull .env.local --yes --scope "${VERCEL_TEAM}"
+vercel env pull .env.local --yes --scope "${VERCEL_TEAM}" </dev/null
 ```
 
 ## Gate
@@ -59,6 +60,6 @@ vercel env pull .env.local --yes --scope "${VERCEL_TEAM}"
 vercel env ls --scope "${VERCEL_TEAM}"
 ```
 
-Must include: `DATABASE_URL` (or `POSTGRES_URL` + mapped `DATABASE_URL`), `AUTH_SECRET`, `AUTH_URL`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
+Must include in **Production**: `DATABASE_URL` (or `POSTGRES_URL` from Marketplace), `AUTH_SECRET`, `AUTH_URL`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
 
-If OAuth credentials are missing, stop and instruct the user to create the GitHub OAuth App for `{PRODUCTION_URL}` and provide `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` — see [bootstrap](../bootstrap/SKILL.md).
+If OAuth credentials are missing, stop and instruct the user to create the GitHub OAuth App for `{PRODUCTION_URL}` — see [bootstrap](../bootstrap/SKILL.md).

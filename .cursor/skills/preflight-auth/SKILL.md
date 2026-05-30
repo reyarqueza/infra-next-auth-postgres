@@ -95,14 +95,14 @@ Remind user that [Vercel for GitHub](https://vercel.com/docs/git/vercel-for-gith
 
 ### 6. GitHub OAuth App (informational — not required at preflight)
 
-OAuth credentials are **not** collected at bootstrap start. After the GitHub repo is created (step 3) and infra through step 7 is provisioned, the user creates a **GitHub OAuth App** for app sign-in before step 8:
+OAuth credentials are **not** required at bootstrap start. The user may create a **GitHub OAuth App** **during steps 2–7** (while `PRODUCTION_URL` is already known) or when the agent pauses before step 8:
 
 1. GitHub → Settings → Developer settings → OAuth Apps → New OAuth App (or reuse an org-level app)
 2. **Homepage URL:** `{PRODUCTION_URL}` (e.g. `https://my-app.example.com` — from `{APP_NAME}.{DOMAIN_NAME}`)
 3. **Authorization callback URL:** `{PRODUCTION_URL}/api/auth/callback/github`
    - Optional for local dev: `http://localhost:3000/api/auth/callback/github`
 4. Copy **Client ID** and generate **Client Secret**
-5. Provide both as `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` when the agent pauses before step 8
+5. Provide both as `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` anytime before step 8
 
 **Optional validation** (when creds are supplied before step 8):
 
@@ -125,4 +125,4 @@ All four automated checks (GitHub CLI, Neon MCP, Vercel CLI, Cloudflare DNS API)
 
 If the user is already authenticated, do not ask them to log in again — only stop when a check fails.
 
-Bootstrap parameters must include `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` before step 8 (`auth-env-setup`); collect them after step 7, not at bootstrap start.
+Bootstrap parameters must include `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` before step 8 (`auth-env-setup`); they may arrive during steps 2–7 or at the step-8 pause.
