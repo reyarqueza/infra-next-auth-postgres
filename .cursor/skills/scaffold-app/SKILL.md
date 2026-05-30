@@ -78,7 +78,71 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 ```
 
-Apply `next-cache-components` patterns in generated routes: keep static shells prerendered; wrap session-dependent UI (e.g. dashboard welcome card after `auth()`) in `<Suspense>` since session data is dynamic at request time.
+Apply `next-cache-components` patterns in generated routes: keep static shells prerendered; wrap anything that calls `auth()` or other request-time data in `<Suspense>` since session data is dynamic at request time.
+
+### Home page (`app/page.tsx`) — required for PPR
+
+Do **not** call `auth()` directly in the page default export. Extract redirect logic into an async child and wrap it:
+
+```tsx
+import { Suspense } from "react";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+
+async function HomeRedirect(): Promise<null> {
+  const session = await auth();
+  redirect(session ? "/dashboard" : "/login");
+  return null;
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeRedirect />
+    </Suspense>
+  );
+}
+```
+
+The explicit `Promise<null>` return type avoids TypeScript errors when `redirect()` is treated as possibly returning.
+
+### Dashboard — session UI in Suspense
+
+Wrap the welcome card (or any block that reads `auth()` after the page guard) in `<Suspense>` so the static shell can prerender.
+
+### App header — shadcn `DropdownMenuTrigger`
+
+Current shadcn/ui uses a `render` prop on `DropdownMenuTrigger`, not `asChild`:
+
+```tsx
+<DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+  {name ?? "Account"}
+</DropdownMenuTrigger>
+```
+
+Use a `<form action={logout}>` inside `DropdownMenuItem` for sign-out — do not call server actions from `onClick` on menu items:
+
+```tsx
+<DropdownMenuItem>
+  <form action={logout}>
+    <button type="submit" className="w-full text-left">
+      Sign out
+    </button>
+  </form>
+</DropdownMenuItem>
+```
+
+## Vercel framework (`vercel.json`)
+
+Create at project root so the first deploy uses the Next.js preset even if the Vercel project was created with framework **Other**:
+
+```json
+{
+  "framework": "nextjs"
+}
+```
+
+Commit this file — do not rely on `vercel project add` or dashboard auto-detection alone.
 
 ## Dependencies
 
@@ -102,14 +166,15 @@ npm install next-themes lucide-react class-variance-authority clsx tailwind-merg
 | Path | Purpose |
 | --- | --- |
 | `app/api/auth/[...nextauth]/route.ts` | Export `GET`, `POST` from `@/auth` handlers |
-| `app/page.tsx` | Redirect to `/dashboard` or `/login` by session |
+| `app/page.tsx` | Session redirect in `<Suspense>` child (see PPR pattern above) |
 | `app/(auth)/login/page.tsx` | Hero with `{APP_NAME}` title + GitHub sign-in |
 | `app/(dashboard)/dashboard/page.tsx` | Protected; `auth()` + `redirect("/login")` if no session; welcome card |
 | `app/actions/auth.ts` | Server actions: `loginWithGitHub`, `logout` |
 | `proxy.ts` | Next.js 16 proxy — optimistic fallback redirect (see template below) |
+| `vercel.json` | `"framework": "nextjs"` — ensures Vercel builds as Next.js (not Other) |
 | `components/login-form.tsx` | Button calling `loginWithGitHub` |
 | `components/welcome-card.tsx` | Card with avatar and welcome message |
-| `components/app-header.tsx` | Header with logout |
+| `components/app-header.tsx` | Header with logout dropdown (`render` trigger + form sign-out) |
 | `components/theme-provider.tsx` | next-themes provider |
 | `sql-ddl/auth-schema.sql` | Auth.js Neon adapter schema (see below) |
 | `.env.example` | Document all required env vars |
@@ -178,5 +243,5 @@ npm run build
 
 Build may use stub env vars locally if needed (`DATABASE_URL=postgresql://stub`, `AUTH_SECRET=build-stub-secret-min-32-chars-long`, etc.) — do not commit stubs to git.
 
-- **Pass:** build succeeds, `package.json` name is `APP_NAME`
+- **Pass:** build succeeds, `package.json` name is `APP_NAME`, `vercel.json` exists with `"framework": "nextjs"`
 - **Fail:** fix errors before `github-create-push`

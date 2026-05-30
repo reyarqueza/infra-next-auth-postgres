@@ -59,12 +59,19 @@ vercel env pull .env.local --yes --scope "${VERCEL_TEAM}"
 
 If the scaffolded app expects `DATABASE_URL` but Vercel injects `POSTGRES_URL`:
 
+**Do not** run bare `vercel env add` in the agent shell — it prompts interactively and hangs in non-TTY. Always pipe the value:
+
 ```bash
-# Read POSTGRES_URL from Vercel and add as DATABASE_URL for all environments
-vercel env add DATABASE_URL production preview development --scope "${VERCEL_TEAM}"
+cd "${LOCAL_PATH}"
+vercel env pull .env.local --yes --scope "${VERCEL_TEAM}"
+
+POSTGRES_URL="$(grep '^POSTGRES_URL=' .env.local | cut -d= -f2- | tr -d '"')"
+
+printf "%s" "${POSTGRES_URL}" | vercel env add DATABASE_URL production preview development --scope "${VERCEL_TEAM}"
+unset POSTGRES_URL
 ```
 
-Pipe the same value as `POSTGRES_URL` without printing it in chat.
+Do not echo `POSTGRES_URL` or `DATABASE_URL` in chat.
 
 ## Gate
 
