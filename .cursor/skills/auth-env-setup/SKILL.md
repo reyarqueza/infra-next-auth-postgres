@@ -26,17 +26,17 @@ unset AUTH_SECRET
 
 ## AUTH_URL
 
-Set to `PRODUCTION_URL` (resolved during bootstrap — e.g. `https://{VERCEL_PROJECT_NAME}-{VERCEL_TEAM}.vercel.app`):
+Set to `PRODUCTION_URL` (resolved during bootstrap — e.g. `https://{APP_NAME}.{DOMAIN_NAME}`):
 
 ```bash
 printf "%s" "${PRODUCTION_URL}" | vercel env add AUTH_URL production preview development --scope "${VERCEL_TEAM}"
 ```
 
-After first prod deploy, optionally re-read the actual alias from `vercel inspect <deployment> --json` and update `AUTH_URL` if it differs from `PRODUCTION_URL` (truncation edge cases).
+Requires [vercel-custom-domain](../vercel-custom-domain/SKILL.md) to have completed before this step.
 
 ## GitHub OAuth credentials
 
-Use `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` from bootstrap parameters (created during preflight — see [preflight-auth](../preflight-auth/SKILL.md)). Do not pause for manual OAuth App creation.
+Collect `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` from the user if not already provided (see [bootstrap](../bootstrap/SKILL.md) — after step 7, before this step). Do not proceed without them.
 
 Add to Vercel (do not echo secrets in chat):
 
@@ -61,4 +61,4 @@ vercel env ls --scope "${VERCEL_TEAM}"
 
 Must include: `DATABASE_URL` (or `POSTGRES_URL` + mapped `DATABASE_URL`), `AUTH_SECRET`, `AUTH_URL`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`.
 
-If OAuth credentials are missing from bootstrap parameters, stop and instruct the user to complete preflight OAuth App setup — do not guide mid-run browser creation.
+If OAuth credentials are missing, stop and instruct the user to create the GitHub OAuth App for `{PRODUCTION_URL}` and provide `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET` — see [bootstrap](../bootstrap/SKILL.md).

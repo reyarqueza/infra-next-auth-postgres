@@ -14,14 +14,16 @@ Parameters: `APP_NAME`, `VERCEL_PROJECT_NAME`, `PRODUCTION_URL`, `VERCEL_TEAM`, 
 
 ## Trigger deployment
 
-If no deployment exists after git push + Vercel link:
+Always run a **production deploy** at the start of this step so the latest git commit (including `vercel.json`), auth env vars, and Neon vars are applied:
 
 ```bash
 cd "${LOCAL_PATH}"
 vercel deploy --prod --scope "${VERCEL_TEAM}"
 ```
 
-Or push an empty commit to trigger GitHub → Vercel auto-deploy.
+This redeploy is **required** if the Vercel project was ever created with framework preset **Other** (e.g. via `vercel project add`) or if the first auto-deploy ran before `vercel.json` was pushed — otherwise all App Router routes return **404** even when the build succeeds.
+
+If deploy already ran from a recent git push with correct framework and env, an explicit `vercel deploy --prod` still ensures auth vars from step 8 are picked up before smoke checks.
 
 ## Wait for deployment
 
@@ -37,7 +39,7 @@ Poll until status is `READY` (up to 10 minutes).
 vercel inspect --scope "${VERCEL_TEAM}" <deployment-url-or-id>
 ```
 
-Or read from Vercel dashboard / project settings. Prefer the deployment alias as source of truth if it differs from `PRODUCTION_URL`.
+Or read from Vercel dashboard / project settings. Use `PRODUCTION_URL` (custom domain from [vercel-custom-domain](../vercel-custom-domain/SKILL.md)) for smoke checks.
 
 ## Smoke checks
 
@@ -47,7 +49,9 @@ Use `{PRODUCTION_URL}` (or the deployment alias if different):
 2. **Dashboard redirect:** fetch `{PRODUCTION_URL}/dashboard` unauthenticated — expect redirect to `/login`
 3. **Neon (optional):** Neon MCP `run_sql` with `SELECT 1` on the provisioned project
 
-OAuth credentials are supplied at bootstrap start; do not accept partial success for missing OAuth env vars.
+OAuth credentials are supplied after step 7; do not accept partial success for missing OAuth env vars.
+
+If smoke checks return **404** on `/login` or `/dashboard`, verify `vercel.json` sets `"framework": "nextjs"`, redeploy with `vercel deploy --prod`, and retry.
 
 ## Completion report
 
@@ -69,11 +73,9 @@ Then provide:
 | --- | --- |
 | GitHub | `https://github.com/{GITHUB_OWNER}/{APP_NAME}` |
 | Vercel project | link from `vercel project inspect {VERCEL_PROJECT_NAME}` |
-| Production URL | `{PRODUCTION_URL}` (or deployment alias) |
+| Production URL | `{PRODUCTION_URL}` |
 | Local path | `LOCAL_PATH` |
 | Local dev | `cd LOCAL_PATH && npm run dev` |
-
-List any remaining manual steps (OAuth callback URL update after custom domain, etc.).
 
 ## Gate
 

@@ -1,7 +1,7 @@
 ---
 name: github-create-push
 description: >-
-  Create GitHub repository and push scaffolded app via GitHub MCP. Invoked by
+  Create GitHub repository and push scaffolded app via GitHub CLI. Invoked by
   bootstrap orchestrator only.
 disable-model-invocation: true
 ---
@@ -12,43 +12,61 @@ Push the scaffolded app at `LOCAL_PATH` to a new GitHub repository.
 
 Parameters: `APP_NAME`, `GITHUB_OWNER`, `LOCAL_PATH`.
 
-## Create repository
+Ask the user whether the repo should be **public** or **private**; default **public**.
 
-GitHub MCP `create_repository`:
+## Prepare local git
 
-- `name`: `APP_NAME`
-- `private`: ask user or default `false`
-- `autoInit`: `false` (we push full tree)
-- `organization`: `GITHUB_OWNER` if it's an org; omit for personal account
-
-## Push files
-
-Collect all project files from `LOCAL_PATH` (exclude `node_modules`, `.next`, `.env.local`, `.vercel`).
-
-GitHub MCP `push_files`:
-
-- `owner`: `GITHUB_OWNER`
-- `repo`: `APP_NAME`
-- `branch`: `main`
-- `message`: `Initial commit: {APP_NAME} scaffold`
-- `files`: array of `{ path, content }` for each file
-
-Alternatively, if local git is initialized:
+`create-next-app` usually initializes git. Ensure a `main` branch and at least one commit:
 
 ```bash
 cd "${LOCAL_PATH}"
-git init
-git checkout -b main
-git add .
-git commit -m "Initial commit: ${APP_NAME} scaffold"
-git remote add origin "https://github.com/${GITHUB_OWNER}/${APP_NAME}.git"
+
+git rev-parse --git-dir >/dev/null 2>&1 || git init
+
+git checkout -B main
+
+if ! git rev-parse HEAD >/dev/null 2>&1; then
+  git add .
+  git commit -m "Initial commit: ${APP_NAME} scaffold"
+fi
+```
+
+## Create repository and push
+
+Use **GitHub CLI** (`gh`). Do not use the Cursor GitHub MCP plugin for repo create or push.
+
+If `GITHUB_OWNER` is an **organization**, use `owner/repo` form. If it is the authenticated user's personal account, `APP_NAME` alone is fine (both work when owner matches):
+
+```bash
+cd "${LOCAL_PATH}"
+
+VISIBILITY="--public"   # or --private per user choice
+
+gh repo create "${GITHUB_OWNER}/${APP_NAME}" \
+  ${VISIBILITY} \
+  --source=. \
+  --remote=origin \
+  --push
+```
+
+If the repo already exists remotely but has no commits, add the remote and push instead:
+
+```bash
+git remote get-url origin >/dev/null 2>&1 \
+  || git remote add origin "https://github.com/${GITHUB_OWNER}/${APP_NAME}.git"
+
 git push -u origin main
 ```
 
-Prefer GitHub MCP if available; use git CLI as fallback.
-
 ## Gate
 
-Verify repo exists: `https://github.com/{GITHUB_OWNER}/{APP_NAME}`
+Verify the repo exists and `package.json` is on the default branch:
 
-GitHub MCP `get_file_contents` or web check — default branch has `package.json`.
+```bash
+gh repo view "${GITHUB_OWNER}/${APP_NAME}" --json name,defaultBranchRef \
+  --jq '.name'
+
+gh api "repos/${GITHUB_OWNER}/${APP_NAME}/contents/package.json" --jq .name
+```
+
+Both commands must succeed before proceeding to `vercel-git-link`.
