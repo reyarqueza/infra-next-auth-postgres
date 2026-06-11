@@ -175,7 +175,6 @@ Typical bootstrap is **8–12 minutes** after these optimizations (down from ~15
 | --- | --- |
 | **Create the GitHub OAuth App during steps 2–7** | `PRODUCTION_URL` is known at start — avoids a blocking pause before step 8 |
 | **Accept Neon Marketplace terms once** | Prevents a browser popup during step 6 |
-| **Use a reference app or template for scaffold** | Agent copies a prior bootstrap instead of codegen (`scaffold-app` fast path) |
 | **Parallel subagents for steps 5 + 6** | Custom domain and Neon Marketplace overlap (~1–3 min saved). Prompt: *"After step 4, run vercel-custom-domain and vercel-marketplace-neon in parallel subagents."* |
 | **Preflight complete before you say bootstrap** | GitHub CLI, Neon MCP, Vercel CLI, and Cloudflare token verified in one shot |
 
