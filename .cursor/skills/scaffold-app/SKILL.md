@@ -48,30 +48,9 @@ Pay special attention to:
 - Do not mix the Auth.js proxy export with the fallback cookie-check template in the same file
 - The fallback template uses an **optimistic cookie check** in `proxy.ts`; enforce auth authoritatively in Server Components (e.g. `dashboard/page.tsx` calls `auth()` and `redirect("/login")`)
 
-## Fast path: copy from reference app (preferred)
-
-When a known-good sibling app exists (e.g. a previous bootstrap at `../{reference-app}`), **copy instead of generating from scratch** — saves several minutes and avoids codegen drift.
-
-```bash
-REFERENCE="../test-5-29-a"   # or any completed bootstrap alongside this skills repo
-rsync -a --exclude node_modules --exclude .git --exclude .next --exclude .vercel --exclude .env.local \
-  "${REFERENCE}/" "${LOCAL_PATH}/"
-```
-
-Then rebrand for `APP_NAME`:
-
-- `package.json` `"name"`
-- `app/layout.tsx` metadata title
-- `app/(auth)/login/page.tsx` title
-- `components/app-header.tsx`, `components/welcome-card.tsx` display strings
-
-Run the [Gate](#gate) (`npm install`, `npm run build`). Skip `create-next-app` and LLM file generation when the copy succeeds.
-
-**Alternative:** maintain a private GitHub template repo and `gh repo create ... --template=owner/template` — same gate applies after clone.
-
-If no reference or template exists, use [Create Next.js app](#create-next-app) below.
-
 ## Create Next.js app
+
+Always scaffold from scratch — do **not** copy or `rsync` from a prior bootstrap. Copied `package.json` / lockfiles go stale quickly; use `create-next-app@latest` and fresh `npm install` on current dependency versions.
 
 ```bash
 npx create-next-app@latest "${LOCAL_PATH}" \
