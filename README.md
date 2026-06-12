@@ -97,7 +97,7 @@ git clone git@github.com:reyarqueza/infra-next-auth-postgres.git && cd infra-nex
 Bootstrap my app. After step 4, run vercel-custom-domain and vercel-marketplace-neon in parallel subagents.
 ```
 
-![Bootstrap my app with parallel subagents](./bootstrap-my-app.png)
+![Cursor prompt screenshot](bootstrap-my-app.png)
 If you have problems running subagents in parallel, then use this prompt:
 
 ```text
