@@ -1,18 +1,29 @@
 # infra-next-auth-postgres
 
-> **What this creates** — End to end: a production-deployed app **and** the infrastructure behind it.
->
-> - **Application** — Next.js 16 app with Auth.js (GitHub sign-in), Neon Postgres adapter, shadcn/ui, a login page, and an empty dashboard page (for you to customize) for signed-in users only.
-> - **GitHub** — New repository under your owner/org with the scaffolded code pushed.
-> - **Vercel** — Project linked to that repo; production deploy on push (or explicit `vercel deploy --prod`).
-> - **Custom domain** — `{APP_NAME}.{DOMAIN_NAME}` wired via Cloudflare DNS (A record or CNAME) to Vercel.
-> - **Neon** — Postgres database via the Vercel Marketplace integration; `POSTGRES_URL` and related env vars in Vercel.
-> - **Database schema** — Auth.js tables applied on Neon (`sql-ddl/auth-schema.sql`).
-> - **OAuth & secrets** — GitHub OAuth App for sign-in; `AUTH_SECRET`, callback URLs, and other vars from `.env.example` set in Vercel.
-> - **Verification** — Agent confirms the production deployment is ready and the login page loads.
->
-> **What this is** — A **markdown-only skills library** for Cursor. Clone this repo, complete the one-time setup (GitHub, Neon, Vercel, Cloudflare), and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
->
+Setting up your infra for your web app is a chore.
+
+It takes alot of time to click through alot of dashboards and interfaces in GitHub, Vercel, and DNS Entries at your domain registrar.
+
+Let's automate that.
+
+> At the time of this writing, fully working free-tiers are supported in GitHub, Vercel, Neon, and Cloudflare.
+
+## What this creates
+End to end: a production-deployed app **and** the infrastructure behind it by running **A SINGLE PROMPT** in **CURSOR**.
+
+The production deployed app created will consist of:
+
+- **Application** — Next.js 16 app with Auth.js (GitHub sign-in), Neon Postgres adapter, shadcn/ui, a login page, and an empty dashboard page (for you to customize) for signed-in users only. This provides a biased Next.js starting point with a blank canvas to kick off your app.
+- **GitHub** — New repository under your owner/org with the scaffolded code pushed.
+- **Vercel** — Project linked to that repo; production deploy on push (or explicit `vercel deploy --prod`).
+- **Custom domain** — `{APP_NAME}.{DOMAIN_NAME}` wired via Cloudflare DNS (A record or CNAME) to Vercel.
+- **Neon** — Postgres database via the Vercel Marketplace integration; `POSTGRES_URL` and related env vars in Vercel.
+- **Database schema** — Auth.js tables applied on Neon (`sql-ddl/auth-schema.sql`).
+- **OAuth & secrets** — GitHub OAuth App for sign-in; `AUTH_SECRET`, callback URLs, and other vars from `.env.local` set in Vercel.
+- **Verification** — Agent confirms the production deployment is ready and the login page loads.
+
+**What this is** — A **markdown-only skills library** for Cursor. Clone this repo, complete the one-time setup (GitHub, Neon, Vercel, Cloudflare), and ask the agent to **bootstrap** a new Next.js app with Auth.js, Neon Postgres, GitHub, and Vercel.
+
 > This repo contains **skills only** — no application code. Generated apps are created alongside this repo in the parent directory (default: `../{APP_NAME}`).
 
 ## Prerequisites
@@ -60,18 +71,10 @@ curl -sf -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   | jq -e '.success == true'
 ```
 
-**GitHub OAuth App (create during steps 2–7 — before step 8):**
-
-`PRODUCTION_URL` is `https://{APP_NAME}.{DOMAIN_NAME}` and is **known at bootstrap start**. Create the OAuth App **while the agent runs steps 2–7** so you are not blocked at step 8.
-
-Create **one OAuth App per bootstrapped app** (OAuth Apps allow only one callback URL each).
-
-1. GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
-2. **Homepage URL:** `{PRODUCTION_URL}` (e.g. `https://my-app.example.com`)
-3. **Callback URL:** `{PRODUCTION_URL}/api/auth/callback/github` (optional: `http://localhost:3000/api/auth/callback/github` for local dev)
-4. Copy **Client ID** and **Client Secret** — reply in chat anytime before step 8
-
-If you have not created the app when step 7 finishes, the agent will pause and ask.
+You'll see **true** print after curl if your CLOUDFLARE setup is successful:
+```bash
+true
+```
 
 ## Bootstrap flow
 
@@ -125,6 +128,19 @@ If you have not created the app when step 7 finishes, the agent will pause and a
 6. Work in the generated app at `LOCAL_PATH` (separate from this skills repo).
 
 7. On success, the agent reports total bootstrap time, e.g. **Completed in X minutes** (infra-next-auth-postgres).
+
+**GitHub OAuth App (create during steps 2–7 — before step 8):**
+
+`PRODUCTION_URL` is `https://{APP_NAME}.{DOMAIN_NAME}` and is **known at bootstrap start**. Create the OAuth App **while the agent runs steps 2–7** so you are not blocked at step 8.
+
+Create **one OAuth App per bootstrapped app** (OAuth Apps allow only one callback URL each).
+
+1. GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
+2. **Homepage URL:** `{PRODUCTION_URL}` (e.g. `https://my-app.example.com`)
+3. **Callback URL:** `{PRODUCTION_URL}/api/auth/callback/github` (optional: `http://localhost:3000/api/auth/callback/github` for local dev)
+4. Copy **Client ID** and **Client Secret** — reply in chat anytime before step 8
+
+If you have not created the app when step 7 finishes, the agent will pause and ask.
 
 ## What bootstrap creates
 
